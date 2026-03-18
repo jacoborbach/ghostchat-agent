@@ -2,6 +2,7 @@
 
 const readline = require('readline');
 const fs = require('fs');
+const { spawn } = require('child_process');
 
 const GC_API = 'https://api.ghostchat.dev';
 
@@ -205,22 +206,70 @@ module.exports = async function setup() {
   fs.writeFileSync('.env', envContent);
   console.log('✓');
 
-  console.log(`
-✓ Setup complete!
+  // Step 7: Start tunnel automatically
+  console.log('\n  Starting Cloudflare Tunnel to get a public URL...\n');
 
-Your bot is configured but needs a public URL to receive webhooks.
-Expose port ${port} using one of:
+  await new Promise((resolve) => {
+    const tunnel = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
-  npx cloudflared tunnel --url http://localhost:${port}
-  npx ngrok http ${port}
+    let tunnelUrl = null;
+    let resolved = false;
 
-Copy the HTTPS URL you get, add /webhook at the end, and paste it
-into the Webhook URL field on app.ghostchat.dev/bot-agent.
+    const onData = async (data) => {
+      const text = data.toString();
+      // cloudflared prints the URL to stderr
+      const match = text.match(/https:\/\/[a-z0-9\-]+\.trycloudflare\.com/);
+      if (match && !resolved) {
+        resolved = true;
+        tunnelUrl = match[0];
+        const webhookPublicUrl = `${tunnelUrl}/webhook`;
 
-Then start your bot:
+        process.stdout.write(`  Tunnel URL: ${tunnelUrl}\n`);
+        process.stdout.write('  Setting webhook URL on GhostChat... ');
+        const ok = await configureSite(apiKey, siteId, { webhookUrl: webhookPublicUrl });
+        console.log(ok ? '✓' : '⚠ (could not set webhook — paste it manually in your dashboard)');
+
+        console.log(`
+✓ Setup complete! Your bot is fully configured.
+
+  Webhook: ${webhookPublicUrl}
+  Dashboard: https://app.ghostchat.dev
+
+Now start your bot in a new terminal:
 
   node index.js
 
+Keep this terminal open — the tunnel stays alive as long as it runs.
 All conversations will appear at app.ghostchat.dev
 `);
+        resolve();
+      }
+    };
+
+    tunnel.stderr.on('data', onData);
+    tunnel.stdout.on('data', onData);
+
+    tunnel.on('error', () => {
+      if (!resolved) {
+        resolved = true;
+        console.log(`\n  ⚠ Could not start cloudflared automatically.`);
+        console.log(`  Run this manually to expose port ${port}:\n`);
+        console.log(`    npx cloudflared tunnel --url http://localhost:${port}\n`);
+        console.log(`  Copy the HTTPS URL, add /webhook, and paste it into app.ghostchat.dev/bot-agent.\n`);
+        resolve();
+      }
+    });
+
+    // Timeout after 30s
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        console.log(`\n  ⚠ Tunnel took too long to start.`);
+        console.log(`  Run manually: npx cloudflared tunnel --url http://localhost:${port}\n`);
+        resolve();
+      }
+    }, 30000);
+  });
 };
