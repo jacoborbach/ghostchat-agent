@@ -10,7 +10,11 @@ Run your own AI on GhostChat. Your AI. Your infrastructure. Your data.
 
 ## Quick start
 
+**Best practice — run in a dedicated empty folder.** The bot only needs access to that folder. Keep it isolated from your codebase, databases, and sensitive files.
+
 ```bash
+mkdir my-ghostchat-bot
+cd my-ghostchat-bot
 npx ghostchat-agent --setup
 ```
 

@@ -102,6 +102,13 @@ module.exports = async function setup() {
 
   console.log('\nGhostChat Bot Setup');
   console.log('───────────────────');
+  console.log('\n  Best practice: run this in a dedicated empty folder.\n');
+  console.log('  The bot only needs access to this folder — nothing else.');
+  console.log('  Keep it isolated from your codebase, databases, and sensitive files.\n');
+  console.log('  Example:');
+  console.log('    mkdir my-ghostchat-bot');
+  console.log('    cd my-ghostchat-bot');
+  console.log('    npx ghostchat-agent --setup\n');
 
   // Step 1: API key
   let apiKey = process.env.GHOSTCHAT_API_KEY || '';
