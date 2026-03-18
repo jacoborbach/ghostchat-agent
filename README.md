@@ -2,6 +2,27 @@
 
 Run your own AI on GhostChat. Your AI. Your infrastructure. Your data.
 
+## ⚠️ Security — Read Before Use
+
+**Run this in a dedicated, isolated folder with no access to your codebase, databases, or sensitive files.**
+
+```bash
+mkdir my-ghostchat-bot   # ← dedicated folder, nothing else in here
+cd my-ghostchat-bot
+npx ghostchat-agent --setup
+```
+
+**Why this matters:** Visitor messages are untrusted user input from the public internet. If you connect a powerful AI agent that has access to your file system, source code, or databases, a malicious visitor could potentially manipulate it through the chat widget.
+
+**The safe setup:**
+- This folder contains only: `ghostchat.md`, `.env`, `index.js`
+- The bot process has no access to anything outside this folder
+- The bot can only do two things: call your LLM + reply via GhostChat API
+
+**If you connect a different agent** (Claude Code, Cursor, an MCP-connected agent, anything with system access) to this webhook instead of using this script — **that is entirely your responsibility.** Ensure it is properly sandboxed before exposing it to public traffic.
+
+For production: use Claude or GPT-4o-mini over local Ollama models — they follow instructions and guardrails more reliably.
+
 ## Requirements
 
 - Node.js 18+
