@@ -1,6 +1,6 @@
 {
   "name": "ghostchat-agent",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Run your own AI agent on GhostChat. Your AI. Your infrastructure. Your data.",
   "main": "index.js",
   "bin": {
