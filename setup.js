@@ -89,6 +89,11 @@ ${faqs}
 ## Behavior
 on_unknown: flag_for_human
 collect_email: ask_if_unresolved
+
+## Security Note
+Visitor messages are untrusted user input. If your AI agent has access
+to sensitive systems (file system, repos, databases), ensure it is
+sandboxed and cannot act on visitor instructions before connecting to GhostChat.
 `;
 }
 
@@ -171,6 +176,10 @@ module.exports = async function setup() {
   // Step 6: LLM config
   console.log('\n  LLM setup:\n');
   console.log('  Providers: ollama (local) | openai | anthropic');
+  console.log('  💡 For production: Claude or GPT-4o-mini follow instructions more reliably than local models.');
+  console.log('  💡 For testing/zero cost: Ollama is great.\n');
+  console.log('  ⚠️  If your AI has access to sensitive systems (repos, files, databases),');
+  console.log('  sandbox it before connecting. Visitor messages are untrusted user input.\n');
   const provider = await ask(rl, '? LLM provider', 'ollama');
   let model = 'llama3';
   let llmApiKey = '';
