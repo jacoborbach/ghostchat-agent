@@ -28,7 +28,7 @@
   "homepage": "https://ghostchat.dev/bot-agent",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jacoborbach/ghostchat-agent.git"
+    "url": "git+https://github.com/jacoborbach/ghostchat-agent.git"
   },
   "bugs": {
     "url": "https://github.com/jacoborbach/ghostchat-agent/issues"
